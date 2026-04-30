@@ -1,7 +1,8 @@
 import requests
 import time
 from flask import Flask, render_template_string, request, redirect
-
+import json  # Required to read the JSON file
+import os    # Required to check if the file exists
 app = Flask(__name__)
 
 # --- CONFIGURATION ---
@@ -9,6 +10,21 @@ PAYSTACK_SECRET_KEY = "sk_live_a8e8c45194c64eda089a94553fa8912212ea5a4b"
 
 # This list stores your orders during the session
 order_alerts = []
+
+# --- DATABASE LOGIC (Reads from the file where orders are stored) ---
+DB_FILE = "orders.json"  # Ensure this file exists, even if it's empty
+
+def get_orders():
+    # If the file doesn't exist, return an empty list
+    if not os.path.exists(DB_FILE):
+        return []
+    
+    # Try to read the file, if it's corrupted return an empty list
+    try:
+        with open(DB_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return []
 
 # --- HTML TEMPLATES ---
 
@@ -149,6 +165,24 @@ def mark_success(idx):
     real_idx = len(order_alerts) - 1 - idx
     order_alerts[real_idx]['status'] = "Success"
     return redirect('/admin')
+
+# --- ADD THIS TO nimosarena.py ---
+
+# A secret token to keep this API private. Make up a strong password here.
+# Keep this secret!
+API_SECURITY_TOKEN = "State2580@agogo" 
+
+@app.route('/api/v1/get_orders', methods=['GET'])
+def api_get_orders():
+    # Basic security check
+    auth_token = request.headers.get('X-Api-Token')
+    
+    if auth_token != API_SECURITY_TOKEN:
+        return {"error": "Unauthorized"}, 403
+
+    # We reuse your existing get_orders() function that reads the JSON file.
+    # Return newest orders first.
+    return {"orders": get_orders()[::-1]}
 
 if __name__ == '__main__':
     app.run(debug=False)
