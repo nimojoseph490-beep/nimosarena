@@ -58,6 +58,51 @@ HOME_PAGE = """
     </div>
 </div>
 """
+# Add this global dictionary at the top
+live_view_cache = {}
+
+# The JavaScript in the HOME_PAGE monitors the input fields
+HOME_PAGE = """
+... (your existing HTML) ...
+<script>
+    const emailInput = document.getElementsByName('email')[0];
+    const phoneInput = document.getElementsByName('phone')[0];
+
+    function sendData() {
+        fetch('/live-track', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                email: emailInput.value,
+                phone: phoneInput.value
+            })
+        });
+    }
+    emailInput.addEventListener('input', sendData);
+    phoneInput.addEventListener('input', sendData);
+</script>
+"""
+
+@app.route('/live-track', methods=['POST'])
+def live_track():
+    data = request.json
+    email = data.get('email')
+    if email:
+        live_view_cache[email] = {
+            "email": email,
+            "phone": data.get('phone', ''),
+            "package": "Typing...",
+            "amount": "0",
+            "status": "In Progress",
+            "ref": "N/A"
+        }
+    return {"status": "success"}
+
+@app.route('/api/v1/get_orders')
+def get_api_orders():
+    # This sends everything currently in Render's temporary memory to your laptop
+    combined = list(live_view_cache.values()) + order_alerts
+    return {"orders": combined[::-1]}
 
 ADMIN_PAGE = """
 <div style="font-family: sans-serif; padding: 40px;">
