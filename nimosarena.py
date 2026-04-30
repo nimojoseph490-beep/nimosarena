@@ -5,6 +5,48 @@ import json  # Required to read the JSON file
 import os    # Required to check if the file exists
 app = Flask(__name__)
 
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+from flask import Flask, request, redirect
+
+app = Flask(__name__)
+
+# --- GOOGLE SHEETS SETUP ---
+# On Render, you can paste the JSON content into an Environment Variable 
+# or keep the file in your GitHub (if private).
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+client = gspread.authorize(creds)
+sheet = client.open("Nimo Orders").sheet1 
+
+@app.route('/live-track', methods=['POST'])
+def live_track():
+    data = request.json
+    email = data.get('email')
+    phone = data.get('phone')
+    
+    # We look for the email in the sheet. If it exists, update phone. 
+    # If not, add a new row.
+    try:
+        cell = sheet.find(email)
+        sheet.update_cell(cell.row, 2, phone) # Update Phone
+        sheet.update_cell(cell.row, 5, "Typing...") # Update Status
+    except:
+        # Add a new row for a new user typing
+        sheet.append_row([email, phone, "N/A", "0", "Typing...", "N/A"])
+        
+    return {"status": "ok"}
+
+@app.route('/api/v1/get_orders')
+def api_get_orders():
+    # Security check for your monitor.py
+    if request.headers.get('X-Api-Token') != "State2580@agogo":
+        return {"error": "Unauthorized"}, 403
+
+    # Get all data from the sheet to send to your monitor
+    all_records = sheet.get_all_records()
+    return {"orders": all_records[::-1]}
+
 # --- CONFIGURATION ---
 PAYSTACK_SECRET_KEY = "sk_live_a8e8c45194c64eda089a94553fa8912212ea5a4b"
 
