@@ -51,16 +51,6 @@ def live_track():
         
     return {"status": "ok"}
 
-@app.route('/api/v1/get_orders')
-def api_get_orders():
-    # Security check for your monitor.py
-    if request.headers.get('X-Api-Token') != "State2580@agogo":
-        return {"error": "Unauthorized"}, 403
-
-    # Get all data from the sheet to send to your monitor
-    all_records = sheet.get_all_records()
-    return {"orders": all_records[::-1]}
-
 # --- CONFIGURATION ---
 PAYSTACK_SECRET_KEY = "sk_live_a8e8c45194c64eda089a94553fa8912212ea5a4b"
 
