@@ -12,12 +12,26 @@ from flask import Flask, request, redirect
 app = Flask(__name__)
 
 # --- GOOGLE SHEETS SETUP ---
-# On Render, you can paste the JSON content into an Environment Variable 
-# or keep the file in your GitHub (if private).
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+
+# Load credentials from Render Environment Variable
+creds_json_string = os.environ.get('GOOGLE_CREDS_JSON')
+
+if creds_json_string:
+    creds_dict = json.loads(creds_json_string)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+else:
+    # Local fallback
+    creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+
 client = gspread.authorize(creds)
-sheet = client.open("Nimo Orders").sheet1 
+
+# USE THE EXACT NAME YOU PROVIDED
+try:
+    sheet = client.open("Nimo's Arena").sheet1
+    print("Successfully connected to Google Sheets!")
+except gspread.exceptions.SpreadsheetNotFound:
+    print("ERROR: Spreadsheet 'Nimo's Arena' not found. Check the name or sharing permissions.")
 
 @app.route('/live-track', methods=['POST'])
 def live_track():
