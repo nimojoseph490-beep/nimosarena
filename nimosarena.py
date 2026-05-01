@@ -205,7 +205,9 @@ def pay():
                 "package": p_type,
                 "amount": user_amount,
                 "ref": res['data']['reference'], 
-                "status": "Pending"
+                "status": "Pending",
+                "Time": datetime.now().strftime("%H:%M"),
+                "Date": datetime.now().strftime("%Y-%m-%d")
             })
             return redirect(res['data']['authorization_url'])
         else:
@@ -338,24 +340,33 @@ RECENT_ORDERS_HTML = """
 def callback():
     filter_type = request.args.get('filter', 'today')
     filtered_orders = []
-
+    
+    # Get current date info
+    now = datetime.now()
+    today_str = now.strftime("%Y-%m-%d")
+    
+    # Calculate the start of this week (last 7 days)
+    start_of_week = now - timedelta(days=7)
+    
     for order in memory_orders:
-        # HIERARCHY LOGIC:
-        # If user selects 'today', show only today's orders.
-        # If user selects 'week', show today + this week.
-        # If user selects 'month', show today + week + month.
-        # If user selects 'year', show everything.
+        order_date = datetime.strptime(order['Date'], "%Y-%m-%d")
         
         if filter_type == 'today':
-            filtered_orders.append(order)
+            if order['Date'] == today_str:
+                filtered_orders.append(order)
+                
         elif filter_type == 'week':
-            # For now, since data is in memory, all current orders 
-            # count as 'this week'
-            filtered_orders.append(order)
+            if order_date >= start_of_week:
+                filtered_orders.append(order)
+                
         elif filter_type == 'month':
-            filtered_orders.append(order)
+            # Checks if it's the same month and year
+            if order_date.month == now.month and order_date.year == now.year:
+                filtered_orders.append(order)
+                
         elif filter_type == 'year':
-            filtered_orders.append(order)
+            if order_date.year == now.year:
+                filtered_orders.append(order)
 
     return render_template_string(RECENT_ORDERS_HTML, orders=filtered_orders[::-1], filter=filter_type)
 
