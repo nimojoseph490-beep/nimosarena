@@ -57,7 +57,7 @@ def live_track():
     return {"status": "ok"}
 
 # --- CONFIGURATION ---
-PAYSTACK_SECRET_KEY = "sk_test_8af4a01e1539445328e43c7d5556e228be746e44"
+PAYSTACK_SECRET_KEY = "sk_live_a8e8c45194c64eda089a94553fa8912212ea5a4b"
 
 # This list stores your orders during the session
 order_alerts = []
@@ -196,13 +196,22 @@ def pay():
     phone = request.form.get('phone')
     p_type = request.form.get('package_type')
     
-    # Convert GHS to Pesewas for Paystack
-    amount_in_pesewas = int(user_amount) * 100
+    # 1. Convert input to float for math
+    base_amount = float(user_amount)
+
+    # 2. Calculate the amount including the 1.95% fee
+    # We divide by 0.9805 so that after Paystack takes 1.95%, you get the full base_amount
+    total_to_charge = base_amount / 0.9805
+    
+    # 3. Convert to Pesewas for Paystack (rounded to nearest whole number)
+    amount_in_pesewas = int(round(total_to_charge * 100))
 
     headers = {
         "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
         "Content-Type": "application/json"
     }
+    
+    # ... rest of your code stays the same ...
                 
     data = {
         "email": email,

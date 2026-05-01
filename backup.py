@@ -503,3 +503,19 @@ HOME_PAGE = """
     </a>
 </div>
 """
+
+
+@app.route('/pay', methods=['POST'])
+def pay():
+    email = request.form.get('email')
+    user_amount = request.form.get('amount')
+    phone = request.form.get('phone')
+    p_type = request.form.get('package_type')
+    
+    # Convert GHS to Pesewas for Paystack
+    amount_in_pesewas = int(user_amount) * 100
+
+    headers = {
+        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json"
+    }
