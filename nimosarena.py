@@ -56,7 +56,7 @@ def live_track():
     return {"status": "ok"}
 
 # --- CONFIGURATION ---
-PAYSTACK_SECRET_KEY = "sk_test_8af4a01e1539445328e43c7d5556e228be746e44"
+PAYSTACK_SECRET_KEY = "sk_live_a8e8c45194c64eda089a94553fa8912212ea5a4b"
 
 # This list stores your orders during the session
 order_alerts = []
