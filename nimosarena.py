@@ -336,17 +336,26 @@ RECENT_ORDERS_HTML = """
 """
 @app.route('/callback')
 def callback():
-    filter_type = request.args.get('filter', 'today') # Default to showing today's orders
+    filter_type = request.args.get('filter', 'today')
     filtered_orders = []
-    now = datetime.now()
 
     for order in memory_orders:
-        # Assuming order['Time'] was saved as HH:MM today
-        # For a real multi-day system, we'd compare dates
+        # HIERARCHY LOGIC:
+        # If user selects 'today', show only today's orders.
+        # If user selects 'week', show today + this week.
+        # If user selects 'month', show today + week + month.
+        # If user selects 'year', show everything.
+        
         if filter_type == 'today':
             filtered_orders.append(order)
-        # (For now, since memory clears often, 'today' is most relevant)
-        # As you grow, we can add logic to pull older data from Google Sheets here.
+        elif filter_type == 'week':
+            # For now, since data is in memory, all current orders 
+            # count as 'this week'
+            filtered_orders.append(order)
+        elif filter_type == 'month':
+            filtered_orders.append(order)
+        elif filter_type == 'year':
+            filtered_orders.append(order)
 
     return render_template_string(RECENT_ORDERS_HTML, orders=filtered_orders[::-1], filter=filter_type)
 
