@@ -348,8 +348,14 @@ def callback():
     start_of_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
     for order in order_alerts:
-        # SAFETY: If an old order is missing a Timestamp, skip it or default to 'now'
-        order_time = order.get('Timestamp', now)
+        # 1. Use .get() to avoid crashing. Use the same variable name 'order_time'
+        order_date_str = order.get('Date', datetime.now().strftime("%Y-%m-%d"))
+        order_time = datetime.strptime(order_date_str, "%Y-%m-%d")
+
+        # 2. Match the indentation level for the filter logic
+        if filter_type == 'today':
+            if order_time >= start_of_today:
+                filtered_orders.append(order)
         
         # Check if order belongs in the selected category
         if filter_type == 'today':
