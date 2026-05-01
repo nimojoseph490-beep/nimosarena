@@ -218,6 +218,19 @@ def recent_orders():
     # This pulls directly from the 'memory_orders' list defined at the top
     return render_template_string(RECENT_ORDERS_HTML, orders=memory_orders[::-1])    
 
+@app.route('/mark-done/<int:order_index>')
+def mark_done(order_index):
+    try:
+        # We use the index to find the exact order in our list
+        # Since the list is reversed in the view, we calculate the real index
+        real_index = len(memory_orders) - 1 - order_index
+        if 0 <= real_index < len(memory_orders):
+            memory_orders[real_index]["Status"] = "Done"
+    except Exception as e:
+        print(f"Error marking done: {e}")
+    
+    return redirect('/callback')
+
 SUCCESS_PAGE = """
 <div style="font-family: sans-serif; text-align: center; padding: 50px;">
     <h2 style="color: green;">Payment Successful!</h2>
@@ -242,8 +255,19 @@ RECENT_ORDERS_HTML = """
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th { text-align: left; background: #eee; padding: 12px; font-size: 12px; border-bottom: 2px solid #ddd; }
         td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
-        .status-pending { color: orange; font-weight: bold; }
-        .btn-done { color: #00bbff; text-decoration: none; font-weight: bold; font-size: 12px; }
+        
+        /* Status Colors */
+        .status-Pending { color: orange; font-weight: bold; }
+        .status-Done { color: green; font-weight: bold; }
+        
+        .btn-done { 
+            background-color: #00bbff; 
+            color: white; 
+            padding: 5px 10px; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            font-size: 11px; 
+        }
     </style>
 </head>
 <body>
@@ -268,8 +292,14 @@ RECENT_ORDERS_HTML = """
                     <td>{{ order.Email }}</td>
                     <td>{{ order.Phone }}</td>
                     <td>{{ order.Package }}</td>
-                    <td class="status-pending">{{ order.Status }}</td>
-                    <td><a href="#" class="btn-done">Mark Done</a></td>
+                    <td class="status-{{ order.Status }}">{{ order.Status }}</td>
+                    <td>
+                        {% if order.Status == 'Pending' %}
+                            <a href="/mark-done/{{ loop.index0 }}" class="btn-done">Mark Done</a>
+                        {% else %}
+                            <span style="color: #ccc;">Completed</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
