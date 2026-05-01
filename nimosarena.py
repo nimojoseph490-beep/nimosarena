@@ -195,16 +195,6 @@ def pay():
     except Exception as e:
         return f"System Error: {str(e)}"
 
-@app.route('/callback')
-def callback():
-    return """
-    <div style="text-align: center; padding-top: 100px; font-family: sans-serif;">
-        <h1 style="color: green;">Payment Sent!</h1>
-        <p>We have received your request. Your bundle will be sent shortly.</p>
-        <a href="/">Back to Home</a>
-    </div>
-    """
-
 SUCCESS_PAGE = """
 <div style="font-family: sans-serif; text-align: center; padding: 50px;">
     <h2 style="color: green;">Payment Successful!</h2>
@@ -216,6 +206,16 @@ SUCCESS_PAGE = """
     <p style="margin-top: 20px;"><a href="/">Return Home</a></p>
 </div>
 """
+
+@app.route('/callback')
+def callback():
+    return """
+    <div style="text-align: center; padding-top: 100px; font-family: sans-serif;">
+        <h1 style="color: green;">Payment Sent!</h1>
+        <p>We have received your request. Your bundle will be sent shortly.</p>
+        <a href="/">Back to Home</a>
+    </div>
+    """
 
 @app.route('/admin')
 def admin():
