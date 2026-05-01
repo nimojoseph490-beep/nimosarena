@@ -56,7 +56,7 @@ def live_track():
     return {"status": "ok"}
 
 # --- CONFIGURATION ---
-PAYSTACK_SECRET_KEY = "sk_live_a8e8c45194c64eda089a94553fa8912212ea5a4b"
+PAYSTACK_SECRET_KEY = "sk_test_8af4a01e1539445328e43c7d5556e228be746e44"
 
 # This list stores your orders during the session
 order_alerts = []
@@ -151,47 +151,6 @@ ADMIN_PAGE = """
 </div>
 """
 
-RECENT_ORDERS_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: sans-serif; margin: 0; padding: 15px; background-color: #f4f7f6; }
-        .nimo-header { background: #000; color: #fff; padding: 15px; text-align: center; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; }
-        .card { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th { text-align: left; background: #eee; padding: 10px; font-size: 12px; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
-        .status { font-weight: bold; color: orange; }
-    </style>
-</head>
-<body>
-    <div class="nimo-header">FOR MR. NIMO'S USE ONLY</div>
-    <h3 style="text-align: center;">Recent Session Orders</h3>
-    <div class="card">
-        <table>
-            <tr>
-                <th>Time</th>
-                <th>Email</th>
-                <th>Package</th>
-                <th>Status</th>
-            </tr>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.Time }}</td>
-                <td>{{ order.Email }}</td>
-                <td>{{ order.Package }}</td>
-                <td class="status">{{ order.Status }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <p style="text-align: center;"><a href="/">← Back to Store</a></p>
-</body>
-</html>
-"""
-
 # --- ROUTES ---
 
 @app.route('/')
@@ -259,16 +218,45 @@ def recent_orders():
     # This pulls directly from the 'memory_orders' list defined at the top
     return render_template_string(RECENT_ORDERS_HTML, orders=memory_orders[::-1])    
 
-SUCCESS_PAGE = """
-<div style="font-family: sans-serif; text-align: center; padding: 50px;">
-    <h2 style="color: green;">Payment Successful!</h2>
-    <p>Your order has been received and is being processed.</p>
-    <br>
-    <a href="/recent-orders" style="display: inline-block; padding: 12px 24px; background-color: #00bbff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
-        View Recent Orders
-    </a>
-    <p style="margin-top: 20px;"><a href="/">Return Home</a></p>
-</div>
+RECENT_ORDERS_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 15px; background-color: #f4f7f6; }
+        .nimo-header { background: #000; color: #fff; padding: 15px; text-align: center; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; }
+        .card { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { text-align: left; background: #eee; padding: 10px; font-size: 12px; }
+        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .status { font-weight: bold; color: orange; }
+    </style>
+</head>
+<body>
+    <div class="nimo-header">FOR MR. NIMO'S USE ONLY</div>
+    <h3 style="text-align: center;">Recent Session Orders</h3>
+    <div class="card">
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Email</th>
+                <th>Package</th>
+                <th>Status</th>
+            </tr>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.Time }}</td>
+                <td>{{ order.Email }}</td>
+                <td>{{ order.Package }}</td>
+                <td class="status">{{ order.Status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <p style="text-align: center;"><a href="/">← Back to Store</a></p>
+</body>
+</html>
 """
 
 @app.route('/callback')
