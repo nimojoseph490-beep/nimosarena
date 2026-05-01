@@ -8,7 +8,7 @@ app = Flask(__name__)
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask, request, redirect
-from datetime import datetime
+from datetime import datetime, timedelta
 app = Flask(__name__)
 
 # --- TEMPORARY STORAGE ---
@@ -249,28 +249,49 @@ RECENT_ORDERS_HTML = """
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 10px; background-color: #f4f7f6; }
-        .nimo-header { background: #000; color: #fff; padding: 15px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; } /* Increased min-width for the extra column */
-        th { text-align: left; background: #eee; padding: 12px; font-size: 12px; border-bottom: 2px solid #ddd; }
-        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 10px; background-color: #f0f2f5; color: #333; }
+        .nimo-warning { background: #000; color: #deff9a; padding: 15px; text-align: center; font-size: 12px; font-weight: bold; line-height: 1.4; border-bottom: 4px solid #deff9a; }
         
-        .status-Pending { color: orange; font-weight: bold; }
-        .status-Done { color: green; font-weight: bold; }
+        .success-box { background: white; padding: 25px; text-align: center; border-radius: 12px; margin: 15px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .success-box h2 { color: #28a745; margin: 0 0 10px 0; }
+        .success-box p { margin: 0; color: #555; font-weight: 500; }
+
+        .filter-section { text-align: center; margin: 20px 0; }
+        .filter-title { font-size: 14px; font-weight: bold; color: #666; margin-bottom: 10px; display: block; text-transform: uppercase; }
+        .btn-group { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
+        .btn-filter { background: white; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px; font-size: 12px; text-decoration: none; color: #333; transition: 0.3s; }
+        .btn-filter.active { background: #000; color: #deff9a; border-color: #000; }
+
+        .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { text-align: left; background: #f8f9fa; padding: 15px; font-size: 11px; color: #888; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
         
-        .btn-done { 
-            background-color: #00bbff; 
-            color: white; 
-            padding: 5px 10px; 
-            text-decoration: none; 
-            border-radius: 4px; 
-            font-size: 11px; 
-        }
+        .status-Pending { color: #f39c12; font-weight: bold; background: #fff9e6; padding: 4px 8px; border-radius: 4px; }
+        .status-Done { color: #27ae60; font-weight: bold; background: #eafff2; padding: 4px 8px; border-radius: 4px; }
+        
+        .btn-done { background: #00bbff; color: white; padding: 6px 12px; text-decoration: none; border-radius: 6px; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="nimo-header">FOR MR. NIMO'S USE ONLY</div>
+    <div class="nimo-warning">
+        ⚠️ THE RIGHT TO CHANGE STATUS FROM Pending TO Done IS RESERVED FOR MR. NIMO ALONE. KINDLY TAKE NOTE! ⚠️
+    </div>
+
+    <div class="success-box">
+        <h2>Payment Sent! ✅</h2>
+        <p>Your Bundle will be received shortly.</p>
+    </div>
+
+    <div class="filter-section">
+        <span class="filter-title">View Recent Orders</span>
+        <div class="btn-group">
+            <a href="/callback?filter=today" class="btn-filter {% if filter == 'today' %}active{% endif %}">Today</a>
+            <a href="/callback?filter=week" class="btn-filter {% if filter == 'week' %}active{% endif %}">This Week</a>
+            <a href="/callback?filter=month" class="btn-filter {% if filter == 'month' %}active{% endif %}">This Month</a>
+            <a href="/callback?filter=year" class="btn-filter {% if filter == 'year' %}active{% endif %}">This Year</a>
+        </div>
+    </div>
     
     <div class="card">
         <table>
@@ -278,9 +299,9 @@ RECENT_ORDERS_HTML = """
                 <tr>
                     <th>Time</th>
                     <th>Email</th>
-                    <th>Phone Number</th>
-                    <th>Bundle Type</th>
-                    <th>Amount (GHS)</th> <!-- New Header -->
+                    <th>Phone</th>
+                    <th>Bundle</th>
+                    <th>Amount</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -292,13 +313,13 @@ RECENT_ORDERS_HTML = """
                     <td>{{ order.Email }}</td>
                     <td>{{ order.Phone }}</td>
                     <td>{{ order.Package }}</td>
-                    <td><strong>{{ order.Amount }}</strong></td> <!-- New Data Cell -->
-                    <td class="status-{{ order.Status }}">{{ order.Status }}</td>
+                    <td>GHS {{ order.Amount }}</td>
+                    <td><span class="status-{{ order.Status }}">{{ order.Status }}</span></td>
                     <td>
                         {% if order.Status == 'Pending' %}
                             <a href="/mark-done/{{ loop.index0 }}" class="btn-done">Mark Done</a>
                         {% else %}
-                            <span style="color: #ccc;">Completed</span>
+                            <span style="color: #bbb;">Completed</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -307,19 +328,27 @@ RECENT_ORDERS_HTML = """
         </table>
     </div>
     
-    <p style="text-align: center; margin-top: 20px;">
-        <a href="/" style="color: #666; text-decoration: none;">← Back to Store</a>
+    <p style="text-align: center; margin: 30px 0;">
+        <a href="/" style="color: #00bbff; text-decoration: none; font-weight: bold;">← Back to Store</a>
     </p>
 </body>
 </html>
 """
 @app.route('/callback')
 def callback():
-    # You MUST use render_template_string to make the {{ }} brackets work
-    from flask import render_template_string
-    
-    # We pass the memory_orders list into the template
-    return render_template_string(RECENT_ORDERS_HTML, orders=memory_orders[::-1])
+    filter_type = request.args.get('filter', 'today') # Default to showing today's orders
+    filtered_orders = []
+    now = datetime.now()
+
+    for order in memory_orders:
+        # Assuming order['Time'] was saved as HH:MM today
+        # For a real multi-day system, we'd compare dates
+        if filter_type == 'today':
+            filtered_orders.append(order)
+        # (For now, since memory clears often, 'today' is most relevant)
+        # As you grow, we can add logic to pull older data from Google Sheets here.
+
+    return render_template_string(RECENT_ORDERS_HTML, orders=filtered_orders[::-1], filter=filter_type)
 
 @app.route('/admin')
 def admin():
