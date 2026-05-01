@@ -75,6 +75,10 @@ def get_orders():
 # --- HTML TEMPLATES ---
 
 HOME_PAGE = """
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    ... your other tags ...
+</head>
 <div style="text-align: center; font-family: sans-serif; padding-top: 50px; background-color: #f9f9f9; min-height: 100vh;">
     <div style="display: inline-block; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px;">
         <h1 style="color: #333; margin-bottom: 5px;">Nimo's Arena</h1>
