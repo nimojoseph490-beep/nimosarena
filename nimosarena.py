@@ -180,7 +180,7 @@ def packages():
     </head>
     <body>
         <div class="container">
-            <img src="/static/Price list.png" alt="MTN Data Price List">
+            <img src="/static/prices.png" alt="MTN Data Price List">
             <br>
             <a href="/" class="back-btn">← Back to Store</a>
         </div>
