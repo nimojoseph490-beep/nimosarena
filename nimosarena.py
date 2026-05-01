@@ -236,82 +236,59 @@ RECENT_ORDERS_HTML = """
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 15px; background-color: #f4f7f6; }
-        .nimo-header { background: #000; color: #fff; padding: 15px; text-align: center; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; }
-        .card { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th { text-align: left; background: #eee; padding: 10px; font-size: 12px; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
-        .status { font-weight: bold; color: orange; }
+        body { font-family: sans-serif; margin: 0; padding: 10px; background-color: #f4f7f6; }
+        .nimo-header { background: #000; color: #fff; padding: 15px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; background: #eee; padding: 12px; font-size: 12px; border-bottom: 2px solid #ddd; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .status-pending { color: orange; font-weight: bold; }
+        .btn-done { color: #00bbff; text-decoration: none; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body>
     <div class="nimo-header">FOR MR. NIMO'S USE ONLY</div>
-    <h3 style="text-align: center;">Recent Session Orders</h3>
+    
     <div class="card">
         <table>
-            <tr>
-                <th>Time</th>
-                <th>Email</th>
-                <th>Package</th>
-                <th>Status</th>
-            </tr>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.Time }}</td>
-                <td>{{ order.Email }}</td>
-                <td>{{ order.Package }}</td>
-                <td class="status">{{ order.Status }}</td>
-            </tr>
-            {% endfor %}
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Bundle Type</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.Time }}</td>
+                    <td>{{ order.Email }}</td>
+                    <td>{{ order.Phone }}</td>
+                    <td>{{ order.Package }}</td>
+                    <td class="status-pending">{{ order.Status }}</td>
+                    <td><a href="#" class="btn-done">Mark Done</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
-    <p style="text-align: center;"><a href="/">← Back to Store</a></p>
+    
+    <p style="text-align: center; margin-top: 20px;">
+        <a href="/" style="color: #666; text-decoration: none;">← Back to Store</a>
+    </p>
 </body>
 </html>
 """
 @app.route('/callback')
 def callback():
-    return """
-    <!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: sans-serif; margin: 0; padding: 15px; background-color: #f4f7f6; }
-        .nimo-header { background: #000; color: #fff; padding: 15px; text-align: center; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; }
-        .card { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th { text-align: left; background: #eee; padding: 10px; font-size: 12px; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
-        .status { font-weight: bold; color: orange; }
-    </style>
-</head>
-<body>
-    <div class="nimo-header">FOR MR. NIMO'S USE ONLY</div>
-    <h3 style="text-align: center;">Recent Session Orders</h3>
-    <div class="card">
-        <table>
-            <tr>
-                <th>Time</th>
-                <th>Email</th>
-                <th>Package</th>
-                <th>Status</th>
-            </tr>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.Time }}</td>
-                <td>{{ order.Email }}</td>
-                <td>{{ order.Package }}</td>
-                <td class="status">{{ order.Status }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <p style="text-align: center;"><a href="/">← Back to Store</a></p>
-</body>
-</html>
-    """
+    # You MUST use render_template_string to make the {{ }} brackets work
+    from flask import render_template_string
+    
+    # We pass the memory_orders list into the template
+    return render_template_string(RECENT_ORDERS_HTML, orders=memory_orders[::-1])
 
 @app.route('/admin')
 def admin():
