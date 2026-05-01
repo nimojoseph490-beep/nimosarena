@@ -56,7 +56,7 @@ def live_track():
     return {"status": "ok"}
 
 # --- CONFIGURATION ---
-PAYSTACK_SECRET_KEY = "sk_live_a8e8c45194c64eda089a94553fa8912212ea5a4b"
+PAYSTACK_SECRET_KEY = "sk_test_8af4a01e1539445328e43c7d5556e228be746e44"
 
 # This list stores your orders during the session
 order_alerts = []
@@ -206,8 +206,7 @@ def pay():
                 "amount": user_amount,
                 "ref": res['data']['reference'], 
                 "status": "Pending",
-                "Time": datetime.now().strftime("%H:%M"),
-                "Date": datetime.now().strftime("%Y-%m-%d")
+                "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
             return redirect(res['data']['authorization_url'])
         else:
@@ -341,34 +340,44 @@ def callback():
     filter_type = request.args.get('filter', 'today')
     filtered_orders = []
     
-    # Get current date info
     now = datetime.now()
-    today_str = now.strftime("%Y-%m-%d")
     
-    # Calculate the start of this week (last 7 days)
-    start_of_week = now - timedelta(days=7)
-    
-    for order in memory_orders:
-        order_date = datetime.strptime(order['Date'], "%Y-%m-%d")
+    # Define time boundaries
+    start_of_today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    start_of_week = start_of_today - timedelta(days=now.weekday()) # Monday of this week
+    start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    start_of_year = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    for order in order_alerts:
+        # SAFETY: If an old order is missing a Timestamp, skip it or default to 'now'
+        order_time = order.get('Timestamp', now)
         
+        # Check if order belongs in the selected category
         if filter_type == 'today':
-            if order['Date'] == today_str:
+            if order_time >= start_of_today:
                 filtered_orders.append(order)
                 
         elif filter_type == 'week':
-            if order_date >= start_of_week:
+            if order_time >= start_of_week:
                 filtered_orders.append(order)
                 
         elif filter_type == 'month':
-            # Checks if it's the same month and year
-            if order_date.month == now.month and order_date.year == now.year:
+            if order_time >= start_of_month:
                 filtered_orders.append(order)
                 
         elif filter_type == 'year':
-            if order_date.year == now.year:
+            if order_time >= start_of_year:
                 filtered_orders.append(order)
 
-    return render_template_string(RECENT_ORDERS_HTML, orders=filtered_orders[::-1], filter=filter_type)
+    # Convert the Timestamp to a readable string just for the HTML table
+    display_orders = []
+    for o in filtered_orders:
+        display_copy = o.copy()
+        display_copy['Time'] = o['Timestamp'].strftime("%H:%M")
+        display_copy['Date'] = o['Timestamp'].strftime("%d %b") # e.g., 01 May
+        display_orders.append(display_copy)
+
+    return render_template_string(RECENT_ORDERS_HTML, orders=display_orders[::-1], filter=filter_type)
 
 @app.route('/admin')
 def admin():
