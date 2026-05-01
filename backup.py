@@ -270,48 +270,6 @@ RECENT_ORDERS_HTML = """
 </body>
 </html>
 """
-@app.route('/callback')
-def callback():
-    return """
-    <!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: sans-serif; margin: 0; padding: 15px; background-color: #f4f7f6; }
-        .nimo-header { background: #000; color: #fff; padding: 15px; text-align: center; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; }
-        .card { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th { text-align: left; background: #eee; padding: 10px; font-size: 12px; }
-        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
-        .status { font-weight: bold; color: orange; }
-    </style>
-</head>
-<body>
-    <div class="nimo-header">FOR MR. NIMO'S USE ONLY</div>
-    <h3 style="text-align: center;">Recent Session Orders</h3>
-    <div class="card">
-        <table>
-            <tr>
-                <th>Time</th>
-                <th>Email</th>
-                <th>Package</th>
-                <th>Status</th>
-            </tr>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.Time }}</td>
-                <td>{{ order.Email }}</td>
-                <td>{{ order.Package }}</td>
-                <td class="status">{{ order.Status }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <p style="text-align: center;"><a href="/">← Back to Store</a></p>
-</body>
-</html>
-    """
 
 @app.route('/admin')
 def admin():
