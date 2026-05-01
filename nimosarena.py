@@ -37,6 +37,31 @@ try:
 except gspread.exceptions.SpreadsheetNotFound:
     print("ERROR: Spreadsheet 'Nimo's Arena' not found. Check the name or sharing permissions.")
 
+@app.route('/packages')
+def packages():
+    return render_template_string('''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Nimos Arena - Packages</title>
+        <style>
+            body { font-family: sans-serif; text-align: center; background-color: #0b1121; color: white; padding: 20px; margin: 0; }
+            .container { max-width: 600px; margin: 0 auto; }
+            img { width: 100%; height: auto; border-radius: 15px; border: 2px solid #c5a059; }
+            .back-btn { display: inline-block; margin: 25px 0; padding: 12px 30px; background: linear-gradient(90deg, #c5a059, #8e6d2f); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 1.1rem; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <img src="/static/Price list.png" alt="MTN Data Price List">
+            <br>
+            <a href="/" class="back-btn">← Back to Store</a>
+        </div>
+    </body>
+    </html>
+    ''')
+
 @app.route('/live-track', methods=['POST'])
 def live_track():
     data = request.json
@@ -110,6 +135,11 @@ HOME_PAGE = """
             </button>
         </form>
     </div>
+</div>
+<div style="text-align: center; margin: 20px 0;">
+    <a href="/packages" style="display: inline-block; padding: 15px 30px; background-color: #ffcc00; color: #000; text-decoration: none; border-radius: 10px; font-weight: bold; border: 2px solid #000;">
+        ⚡ Click to view packages and prices
+    </a>
 </div>
 """
 ADMIN_PAGE = """
