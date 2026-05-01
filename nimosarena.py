@@ -205,8 +205,7 @@ def pay():
                 "package": p_type,
                 "amount": user_amount,
                 "ref": res['data']['reference'], 
-                "status": "Pending",
-                "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "status": "Pending"
             })
             return redirect(res['data']['authorization_url'])
         else:
