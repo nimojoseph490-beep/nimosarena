@@ -164,22 +164,8 @@ def pay():
     phone = request.form.get('phone')
     p_type = request.form.get('package_type')
     
-
     # Convert GHS to Pesewas for Paystack
     amount_in_pesewas = int(user_amount) * 100
-
-# ADD THIS LINE HERE:
-    memory_orders.append({
-        "Email": email,
-        "Phone": phone,
-        "Package": p_type,
-        "Amount": user_amount,
-        "Status": "Pending",
-        "Time": datetime.now().strftime("%H:%M")
-    })
-
-    # ... keep your existing Paystack redirect logic here ...
-
 
     headers = {
         "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
@@ -198,14 +184,17 @@ def pay():
         res = r.json()
 
         if res['status']:
-            # Store full details in the list
+            # THE CORRECT SINGLE SAVE:
+            # We use 'order_alerts' to match your latest logic
             order_alerts.append({
-                "email": email,
-                "phone": phone,
-                "package": p_type,
-                "amount": user_amount,
-                "ref": res['data']['reference'], 
-                "status": "Pending"
+                "Email": email,
+                "Phone": phone,
+                "Package": p_type,
+                "Amount": user_amount,
+                "Status": "Pending",
+                "Timestamp": datetime.now(), # For high-accuracy filtering
+                "Date": datetime.now().strftime("%Y-%m-%d"), # Backup for safety
+                "ref": res['data']['reference']
             })
             return redirect(res['data']['authorization_url'])
         else:
