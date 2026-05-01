@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from flask import Flask, request, redirect
+from flask import Flask, render_template_string, request, redirect, url_for
 from datetime import datetime, timedelta
 app = Flask(__name__)
 
@@ -210,15 +210,16 @@ def recent_orders():
 @app.route('/mark-done/<int:order_index>')
 def mark_done(order_index):
     try:
-        # We use the index to find the exact order in our list
-        # Since the list is reversed in the view, we calculate the real index
-        real_index = len(memory_orders) - 1 - order_index
-        if 0 <= real_index < len(memory_orders):
-            memory_orders[real_index]["Status"] = "Done"
+        # We must update order_alerts because that is what the dashboard displays
+        # Use [::-1] logic because the dashboard shows orders in reverse
+        actual_index = len(order_alerts) - 1 - order_index
+        
+        if 0 <= actual_index < len(order_alerts):
+            order_alerts[actual_index]['Status'] = 'Done'
+            
+        return redirect(url_for('callback'))
     except Exception as e:
-        print(f"Error marking done: {e}")
-    
-    return redirect('/callback')
+        return f"Error updating status: {str(e)}"
 
 SUCCESS_PAGE = """
 <div style="font-family: sans-serif; text-align: center; padding: 50px;">
