@@ -8,7 +8,7 @@ app = Flask(__name__)
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask, request, redirect
-import datetime
+from datetime import datetime
 app = Flask(__name__)
 
 # --- TEMPORARY STORAGE ---
