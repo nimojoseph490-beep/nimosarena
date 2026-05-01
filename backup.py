@@ -462,3 +462,44 @@ def callback():
 def recent_orders():
     # This pulls directly from the 'memory_orders' list defined at the top
     return render_template_string(RECENT_ORDERS_HTML, orders=memory_orders[::-1])    
+
+
+HOME_PAGE = """
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    ... your other tags ...
+</head>
+<div style="text-align: center; font-family: sans-serif; padding-top: 50px; background-color: #f9f9f9; min-height: 100vh;">
+    <div style="display: inline-block; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px;">
+        <h1 style="color: #333; margin-bottom: 5px;">Nimo's Arena</h1>
+        <p style="color: #777; margin-bottom: 25px;">Buy Bundles Instantly</p>
+        
+        <form action="/pay" method="POST">
+            <input type="email" name="email" placeholder="Your Email" required 
+                   style="padding: 12px; width: 100%; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box;">
+            
+            <input type="tel" name="phone" placeholder="Phone Number (e.g. 054...)" required 
+                   style="padding: 12px; width: 100%; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box;">
+
+            <select name="package_type" required 
+                    style="padding: 12px; width: 100%; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; background: white;">
+                <option value="" disabled selected>Select Bundle Type</option>
+                <option value="Internet Bundle">Internet Bundle</option>
+                <option value="Call Bundle">Call Bundle</option>
+            </select>
+
+            <input type="number" name="amount" placeholder="Amount (GHS)" min="1" required 
+                   style="padding: 12px; width: 100%; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 25px; box-sizing: border-box;">
+            
+            <button type="submit" style="background: #00bbff; color: white; border: none; padding: 15px; width: 100%; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                Proceed to Pay
+            </button>
+        </form>
+    </div>
+</div>
+<div style="text-align: center; margin: 20px 0;">
+    <a href="/packages" style="display: inline-block; padding: 15px 30px; background-color: #ffcc00; color: #000; text-decoration: none; border-radius: 10px; font-weight: bold; border: 2px solid #000;">
+        ⚡ Click to view packages and prices
+    </a>
+</div>
+"""

@@ -82,12 +82,18 @@ def get_orders():
 HOME_PAGE = """
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    ... your other tags ...
 </head>
 <div style="text-align: center; font-family: sans-serif; padding-top: 50px; background-color: #f9f9f9; min-height: 100vh;">
     <div style="display: inline-block; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px;">
         <h1 style="color: #333; margin-bottom: 5px;">Nimo's Arena</h1>
-        <p style="color: #777; margin-bottom: 25px;">Buy Bundles Instantly</p>
+        <p style="color: #777; margin-bottom: 15px;">Buy Bundles Instantly</p>
+        
+        <!-- BUTTON MOVED HERE (Inside the white box, above the form) -->
+        <div style="margin-bottom: 25px;">
+            <a href="/packages" style="display: block; padding: 12px; background-color: #ffcc00; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold; border: 2px solid #000; font-size: 14px;">
+                ⚡ View Packages & Prices
+            </a>
+        </div>
         
         <form action="/pay" method="POST">
             <input type="email" name="email" placeholder="Your Email" required 
@@ -111,11 +117,6 @@ HOME_PAGE = """
             </button>
         </form>
     </div>
-</div>
-<div style="text-align: center; margin: 20px 0;">
-    <a href="/packages" style="display: inline-block; padding: 15px 30px; background-color: #ffcc00; color: #000; text-decoration: none; border-radius: 10px; font-weight: bold; border: 2px solid #000;">
-        ⚡ Click to view packages and prices
-    </a>
 </div>
 """
 ADMIN_PAGE = """
