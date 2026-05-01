@@ -8,8 +8,12 @@ app = Flask(__name__)
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from flask import Flask, request, redirect
-
+import datetime
 app = Flask(__name__)
+
+# --- TEMPORARY STORAGE ---
+# This holds orders in the server memory until the next restart
+memory_orders = []
 
 # --- GOOGLE SHEETS SETUP ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -147,6 +151,47 @@ ADMIN_PAGE = """
 </div>
 """
 
+RECENT_ORDERS_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 15px; background-color: #f4f7f6; }
+        .nimo-header { background: #000; color: #fff; padding: 15px; text-align: center; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; }
+        .card { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { text-align: left; background: #eee; padding: 10px; font-size: 12px; }
+        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .status { font-weight: bold; color: orange; }
+    </style>
+</head>
+<body>
+    <div class="nimo-header">FOR MR. NIMO'S USE ONLY</div>
+    <h3 style="text-align: center;">Recent Session Orders</h3>
+    <div class="card">
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Email</th>
+                <th>Package</th>
+                <th>Status</th>
+            </tr>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.Time }}</td>
+                <td>{{ order.Email }}</td>
+                <td>{{ order.Package }}</td>
+                <td class="status">{{ order.Status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <p style="text-align: center;"><a href="/">← Back to Store</a></p>
+</body>
+</html>
+"""
+
 # --- ROUTES ---
 
 @app.route('/')
@@ -160,8 +205,22 @@ def pay():
     phone = request.form.get('phone')
     p_type = request.form.get('package_type')
     
+
     # Convert GHS to Pesewas for Paystack
     amount_in_pesewas = int(user_amount) * 100
+
+# ADD THIS LINE HERE:
+    memory_orders.append({
+        "Email": email,
+        "Phone": phone,
+        "Package": p_type,
+        "Amount": user_amount,
+        "Status": "Pending",
+        "Time": datetime.now().strftime("%H:%M")
+    })
+
+    # ... keep your existing Paystack redirect logic here ...
+
 
     headers = {
         "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
@@ -194,6 +253,11 @@ def pay():
             return f"Error from Paystack: {res['message']}"
     except Exception as e:
         return f"System Error: {str(e)}"
+    
+@app.route('/recent-orders')
+def recent_orders():
+    # This pulls directly from the 'memory_orders' list defined at the top
+    return render_template_string(RECENT_ORDERS_HTML, orders=memory_orders[::-1])    
 
 SUCCESS_PAGE = """
 <div style="font-family: sans-serif; text-align: center; padding: 50px;">
