@@ -455,3 +455,10 @@ def callback():
     
     # We pass the memory_orders list into the template
     return render_template_string(RECENT_ORDERS_HTML, orders=memory_orders[::-1])
+
+
+
+@app.route('/recent-orders')
+def recent_orders():
+    # This pulls directly from the 'memory_orders' list defined at the top
+    return render_template_string(RECENT_ORDERS_HTML, orders=memory_orders[::-1])    
