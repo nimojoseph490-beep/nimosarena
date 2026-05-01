@@ -252,11 +252,10 @@ RECENT_ORDERS_HTML = """
         body { font-family: sans-serif; margin: 0; padding: 10px; background-color: #f4f7f6; }
         .nimo-header { background: #000; color: #fff; padding: 15px; text-align: center; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
         .card { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; } /* Increased min-width for the extra column */
         th { text-align: left; background: #eee; padding: 12px; font-size: 12px; border-bottom: 2px solid #ddd; }
         td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
         
-        /* Status Colors */
         .status-Pending { color: orange; font-weight: bold; }
         .status-Done { color: green; font-weight: bold; }
         
@@ -281,6 +280,7 @@ RECENT_ORDERS_HTML = """
                     <th>Email</th>
                     <th>Phone Number</th>
                     <th>Bundle Type</th>
+                    <th>Amount (GHS)</th> <!-- New Header -->
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -292,6 +292,7 @@ RECENT_ORDERS_HTML = """
                     <td>{{ order.Email }}</td>
                     <td>{{ order.Phone }}</td>
                     <td>{{ order.Package }}</td>
+                    <td><strong>{{ order.Amount }}</strong></td> <!-- New Data Cell -->
                     <td class="status-{{ order.Status }}">{{ order.Status }}</td>
                     <td>
                         {% if order.Status == 'Pending' %}
