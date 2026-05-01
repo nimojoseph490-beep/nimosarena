@@ -170,17 +170,17 @@ def packages():
     <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Nimos Arena - Packages</title>
         <style>
-            body { font-family: sans-serif; text-align: center; background-color: #0b1121; color: white; padding: 20px; margin: 0; }
-            .container { max-width: 600px; margin: 0 auto; }
-            img { width: 100%; height: auto; border-radius: 15px; border: 2px solid #c5a059; }
-            .back-btn { display: inline-block; margin: 25px 0; padding: 12px 30px; background: linear-gradient(90deg, #c5a059, #8e6d2f); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 1.1rem; }
+            body { font-family: sans-serif; text-align: center; background-color: #0b1121; color: white; padding: 20px; }
+            .container { max-width: 500px; margin: 0 auto; }
+            img { width: 100%; height: auto; border-radius: 10px; border: 2px solid #c5a059; }
+            .back-btn { display: inline-block; margin-top: 20px; padding: 12px 30px; background: linear-gradient(90deg, #c5a059, #8e6d2f); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; }
         </style>
     </head>
     <body>
         <div class="container">
-            <img src="/static/prices.png" alt="MTN Data Price List">
+            <!-- Updated name here -->
+            <img src="{{ url_for('static', filename='prices.png') }}" alt="MTN Data Price List">
             <br>
             <a href="/" class="back-btn">← Back to Store</a>
         </div>
