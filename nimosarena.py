@@ -323,6 +323,7 @@ RECENT_ORDERS_HTML = """
         <table>
             <thead>
                 <tr>
+                    <th>Date</th> <!-- Added Date Header -->
                     <th>Time</th>
                     <th>Email</th>
                     <th>Phone</th>
@@ -335,6 +336,7 @@ RECENT_ORDERS_HTML = """
             <tbody>
                 {% for order in orders %}
                 <tr>
+                    <td>{{ order.Date }}</td> <!-- Added Date Data -->
                     <td>{{ order.Time }}</td>
                     <td>{{ order.Email }}</td>
                     <td>{{ order.Phone }}</td>
@@ -404,8 +406,9 @@ def callback():
     display_orders = []
     for o in filtered_orders:
         display_copy = o.copy()
+        # This line ensures the 'Date' key exists for your new HTML column
+        display_copy['Date'] = o['Timestamp'].strftime("%d %b %Y") 
         display_copy['Time'] = o['Timestamp'].strftime("%H:%M")
-        display_copy['Date'] = o['Timestamp'].strftime("%d %b") # e.g., 01 May
         display_orders.append(display_copy)
 
     return render_template_string(RECENT_ORDERS_HTML, orders=display_orders[::-1], filter=filter_type)
